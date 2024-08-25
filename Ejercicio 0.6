@@ -1,0 +1,10 @@
+sequenceDiagram
+    participant Usuario
+    participant Navegador
+    participant Servidor
+
+    Usuario->>Navegador: Escribe nota en el campo de texto
+    Usuario->>Navegador: Hace clic en "Save"
+    Navegador->>Servidor: Enviar solicitud POST con la nueva nota (JSON)
+    Servidor-->>Navegador: Responder con la nueva nota guardada
+    Navegador->>Usuario: Actualizar la interfaz con la nueva nota sin recargar la página
