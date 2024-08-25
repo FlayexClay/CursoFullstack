@@ -1,0 +1,13 @@
+sequenceDiagram
+    participant Usuario
+    participant Navegador
+    participant Servidor
+
+    Usuario->>Navegador: Accede a la URL /spa
+    Navegador->>Servidor: Solicitar archivo HTML (index.html)
+    Servidor-->>Navegador: Responder con index.html
+    Navegador->>Servidor: Solicitar archivos JavaScript (app.js)
+    Servidor-->>Navegador: Responder con app.js
+    Navegador->>Servidor: Solicitar datos de notas (JSON)
+    Servidor-->>Navegador: Responder con datos JSON de notas
+    Navegador->>Usuario: Renderizar la página SPA con las notas
