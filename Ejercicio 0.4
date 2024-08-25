@@ -1,0 +1,10 @@
+sequenceDiagram
+    participant Usuario
+    participant Navegador
+    participant Servidor
+
+    Usuario->>Navegador: Escribe nota en el campo de texto
+    Usuario->>Navegador: Hace clic en "Save"
+    Navegador->>Servidor: Enviar solicitud POST con la nueva nota
+    Servidor-->>Navegador: Respuesta exitosa (200 OK)
+    Navegador->>Usuario: Recargar página con la nueva nota en la lista
