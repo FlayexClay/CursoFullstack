@@ -1,0 +1,140 @@
+import { useState, useEffect } from "react";
+import Filter from "./components/Filter";
+import PersonForm from "./components/PersonForm";
+import Persons from "./components/Persons";
+import personsService from "./services/personsService";
+
+const App = () => {
+  const [persons, setPersons] = useState([]);
+  const [newName, setNewName] = useState("");
+  const [newNumber, setNewNumber] = useState("");
+  const [filter, setFilter] = useState("");
+
+  useEffect(() => {
+    personsService
+      .getAll()
+      .then(response => {
+        setPersons(response.data);
+      })
+      .catch(error => {
+        console.error("Error al obtener los contactos:", error);
+      });
+  }, []);
+
+  const handleNameChange = (event) => {
+    setNewName(event.target.value);
+  };
+
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value);
+  };
+
+  const handleFilterChange = (event) => {
+    setFilter(event.target.value);
+  };
+
+  const addPerson = (event) => {
+    event.preventDefault();
+
+    const existingPerson = persons.find((person) => person.name === newName);
+
+    if (existingPerson) {
+      // Si la persona ya existe, pedimos confirmación para reemplazar su número
+      const confirmUpdate = window.confirm(
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      );
+
+      if (confirmUpdate) {
+        const updatedPerson = { ...existingPerson, number: newNumber };
+
+        personsService
+          .update(existingPerson.id, updatedPerson)
+          .then(response => {
+            setPersons(persons.map(person =>
+              person.id !== existingPerson.id ? person : response.data
+            ));
+            setNewName("");
+            setNewNumber("");
+          })
+          .catch(error => {
+            console.error("Error al actualizar el contacto:", error);
+          });
+      }
+    } else {
+      const newPerson = { name: newName, number: newNumber };
+
+      personsService
+        .create(newPerson)
+        .then(response => {
+          setPersons(persons.concat(response.data));
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch(error => {
+          console.error("Error al agregar el contacto:", error);
+        });
+    }
+  };
+
+  const deletePerson = (id, name) => {
+    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
+      personsService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id));
+        })
+        .catch(error => {
+          console.error("Error al eliminar el contacto:", error);
+        });
+    }
+  };
+
+  const personsToShow = filter
+    ? persons.filter((person) =>
+        person.name.toLowerCase().includes(filter.toLowerCase())
+      )
+    : persons;
+
+  return (
+    <div>
+      <h2>Phonebook</h2>
+      <Filter value={filter} onChange={handleFilterChange} />
+      <PersonForm
+        onSubmit={addPerson}
+        newName={newName}
+        newNumber={newNumber}
+        handleNameChange={handleNameChange}
+        handleNumberChange={handleNumberChange}
+      />
+      <h2>Numbers</h2>
+      <Persons persons={personsToShow} onDelete={deletePerson} />
+    </div>
+  );
+};
+
+export default App;
+
+
+//////PersonSERVICE.JSX//
+import axios from 'axios';
+
+const baseUrl = 'http://localhost:3001/persons';
+
+const getAll = () => {
+  return axios.get(baseUrl);
+};
+
+const create = (newObject) => {
+  return axios.post(baseUrl, newObject);
+};
+
+// Nueva función para actualizar un contacto existente
+const update = (id, newObject) => {
+  return axios.put(`${baseUrl}/${id}`, newObject);
+};
+
+const remove = (id) => {
+  return axios.delete(`${baseUrl}/${id}`);
+};
+
+export default { getAll, create, update, remove };
