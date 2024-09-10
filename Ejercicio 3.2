@@ -1,0 +1,27 @@
+const express = require('express');
+const app = express();
+const PORT = 3001;
+
+// Supongamos que esta es tu agenda telefónica
+const agendaTelefonica = [
+  { nombre: 'John Doe', telefono: '123456789' },
+  { nombre: 'Jane Doe', telefono: '987654321' },
+];
+
+// Ruta para mostrar la información en /info
+app.get('/info', (req, res) => {
+  const horaActual = new Date();
+  const cantidadEntradas = agendaTelefonica.length;
+
+  const respuesta = `
+    <h1>Información de la Agenda Telefónica</h1>
+    <p>La solicitud fue recibida a las ${horaActual.toLocaleTimeString()}.</p>
+    <p>La agenda tiene ${cantidadEntradas} entradas en este momento.</p>
+  `;
+
+  res.send(respuesta);
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
